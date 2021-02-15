@@ -11,12 +11,16 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody2D rb;
     private Collider2D col;
+    private Animator _animator;
+    private SpriteRenderer _spriteRenderer;
 
     private void Awake()
     {
         playerActionControls = new PlayerActionControls();
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
+        _animator = GetComponent<Animator>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     private void OnEnable()
@@ -39,6 +43,7 @@ public class PlayerController : MonoBehaviour
         if (IsGrounded())
         {
             rb.AddForce(new Vector2(0, jumpSpeed), ForceMode2D.Impulse);
+            _animator.SetTrigger("Jump");
         }
     }
 
@@ -57,12 +62,27 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        Move();
+    }
+
+
+    private void Move()
+    {
         // Read the movement value
         float movementInput = playerActionControls.WASD.Move.ReadValue<float>();
         // Move the player
         Vector3 currentPosition = transform.position;
         currentPosition.x += movementInput * speed * Time.deltaTime;
         transform.position = currentPosition;
-        
+
+        //Animation
+        if (movementInput != 0) _animator.SetBool("Run", true);
+        else _animator.SetBool("Run", false);
+
+        //sprite flip
+        if (movementInput == 1)
+            _spriteRenderer.flipX = true;
+        else if (movementInput == -1)
+            _spriteRenderer.flipX = false;         
     }
 }

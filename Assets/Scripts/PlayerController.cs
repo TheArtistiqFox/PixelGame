@@ -7,12 +7,16 @@ public class PlayerController : MonoBehaviour
     //public float speed;
     [SerializeField] private float speed, jumpSpeed;
     [SerializeField] private LayerMask ground;
+    [SerializeField] private GameObject _bulletPrefab;
     private PlayerActionControls playerActionControls;
 
     private Rigidbody2D rb;
     private Collider2D col;
     private Animator _animator;
     private SpriteRenderer _spriteRenderer;
+    public Transform _firePoint;
+
+    private bool _FacingRight = true;
 
     private void Awake()
     {
@@ -36,6 +40,13 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         playerActionControls.WASD.Jump.performed += _ => Jump();
+        playerActionControls.WASD.Shoot.performed += _ => Shoot();
+    }
+
+    private void Shoot()
+    {
+        //Debug.Log("shoot");
+        Instantiate(_bulletPrefab, _firePoint.position, _firePoint.rotation);
     }
 
     private void Jump()
@@ -43,7 +54,8 @@ public class PlayerController : MonoBehaviour
         if (IsGrounded())
         {
             rb.AddForce(new Vector2(0, jumpSpeed), ForceMode2D.Impulse);
-            _animator.SetTrigger("Jump");
+            //_animator.SetTrigger("Jump");
+        
         }
     }
 
@@ -63,8 +75,17 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         Move();
-    }
 
+        //new sprite flipping code (flips the sprite and its children)
+        float movementInput = playerActionControls.WASD.Move.ReadValue<float>();
+        if (movementInput == 1 && _FacingRight)
+            Flip();
+        if (movementInput == -1 && !_FacingRight)
+            Flip();
+
+        _animator.SetBool("IsJumping", !IsGrounded());
+        
+    }
 
     private void Move()
     {
@@ -79,10 +100,17 @@ public class PlayerController : MonoBehaviour
         if (movementInput != 0) _animator.SetBool("Run", true);
         else _animator.SetBool("Run", false);
 
-        //sprite flip
-        if (movementInput == 1)
-            _spriteRenderer.flipX = true;
-        else if (movementInput == -1)
-            _spriteRenderer.flipX = false;         
+        //sprite flip (original - only flips the sprite)
+        //if (movementInput == 1)
+        //    _spriteRenderer.flipX = true;
+        //if (movementInput == -1)
+        //    _spriteRenderer.flipX = false;
+    }
+
+    private void Flip()
+    {
+        _FacingRight = !_FacingRight;
+        transform.Rotate(0f, 180f, 0f);
+        
     }
 }

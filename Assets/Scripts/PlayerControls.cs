@@ -33,6 +33,14 @@ public class @PlayerActionControls : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""Shoot"",
+                    ""type"": ""Button"",
+                    ""id"": ""24883640-d2de-4908-9f30-406f56814033"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -79,6 +87,17 @@ public class @PlayerActionControls : IInputActionCollection, IDisposable
                     ""action"": ""Jump"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""feaddf35-b244-4553-9039-4689e0d7805a"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Shoot"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -89,6 +108,7 @@ public class @PlayerActionControls : IInputActionCollection, IDisposable
         m_WASD = asset.FindActionMap("WASD", throwIfNotFound: true);
         m_WASD_Move = m_WASD.FindAction("Move", throwIfNotFound: true);
         m_WASD_Jump = m_WASD.FindAction("Jump", throwIfNotFound: true);
+        m_WASD_Shoot = m_WASD.FindAction("Shoot", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -140,12 +160,14 @@ public class @PlayerActionControls : IInputActionCollection, IDisposable
     private IWASDActions m_WASDActionsCallbackInterface;
     private readonly InputAction m_WASD_Move;
     private readonly InputAction m_WASD_Jump;
+    private readonly InputAction m_WASD_Shoot;
     public struct WASDActions
     {
         private @PlayerActionControls m_Wrapper;
         public WASDActions(@PlayerActionControls wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_WASD_Move;
         public InputAction @Jump => m_Wrapper.m_WASD_Jump;
+        public InputAction @Shoot => m_Wrapper.m_WASD_Shoot;
         public InputActionMap Get() { return m_Wrapper.m_WASD; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -161,6 +183,9 @@ public class @PlayerActionControls : IInputActionCollection, IDisposable
                 @Jump.started -= m_Wrapper.m_WASDActionsCallbackInterface.OnJump;
                 @Jump.performed -= m_Wrapper.m_WASDActionsCallbackInterface.OnJump;
                 @Jump.canceled -= m_Wrapper.m_WASDActionsCallbackInterface.OnJump;
+                @Shoot.started -= m_Wrapper.m_WASDActionsCallbackInterface.OnShoot;
+                @Shoot.performed -= m_Wrapper.m_WASDActionsCallbackInterface.OnShoot;
+                @Shoot.canceled -= m_Wrapper.m_WASDActionsCallbackInterface.OnShoot;
             }
             m_Wrapper.m_WASDActionsCallbackInterface = instance;
             if (instance != null)
@@ -171,6 +196,9 @@ public class @PlayerActionControls : IInputActionCollection, IDisposable
                 @Jump.started += instance.OnJump;
                 @Jump.performed += instance.OnJump;
                 @Jump.canceled += instance.OnJump;
+                @Shoot.started += instance.OnShoot;
+                @Shoot.performed += instance.OnShoot;
+                @Shoot.canceled += instance.OnShoot;
             }
         }
     }
@@ -179,5 +207,6 @@ public class @PlayerActionControls : IInputActionCollection, IDisposable
     {
         void OnMove(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
+        void OnShoot(InputAction.CallbackContext context);
     }
 }

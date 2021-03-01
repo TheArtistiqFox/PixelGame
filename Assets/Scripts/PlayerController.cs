@@ -78,9 +78,9 @@ public class PlayerController : MonoBehaviour
 
         //new sprite flipping code (flips the sprite and its children)
         float movementInput = playerActionControls.WASD.Move.ReadValue<float>();
-        if (movementInput == 1 && _FacingRight)
+        if (movementInput == -1 && _FacingRight)
             Flip();
-        if (movementInput == -1 && !_FacingRight)
+        if (movementInput == 1 && !_FacingRight)
             Flip();
 
         _animator.SetBool("IsJumping", !IsGrounded());

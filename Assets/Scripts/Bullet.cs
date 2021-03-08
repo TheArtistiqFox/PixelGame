@@ -33,6 +33,7 @@ public class Bullet : MonoBehaviour
         if (boss != null)
         {
             boss.TakeDamage(damage);
+            Destroy(gameObject);
         }
     }
     // Update is called once per frame

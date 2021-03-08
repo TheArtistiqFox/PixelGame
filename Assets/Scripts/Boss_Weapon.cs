@@ -6,7 +6,7 @@ public class Boss_Weapon : MonoBehaviour
 {
     public int attackDamage = 20;
     public Vector3 attackOffset;
-    public float attackRange = 1f;
+    public float attackRange = 3f;
     public LayerMask attackMask;
 
     public void Attack()
@@ -19,7 +19,7 @@ public class Boss_Weapon : MonoBehaviour
         if (colInfo != null)
         {
             //need the player to have health to use this.
-            //colInfo.GetComponent<PlayerHealth>(TakeDamage(attackDamage));
+            colInfo.GetComponent<PlayerHealth>().TakeDamage(attackDamage);
         }
     }
 }

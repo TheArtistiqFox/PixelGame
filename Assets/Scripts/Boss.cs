@@ -12,20 +12,20 @@ public class Boss : MonoBehaviour
     //Health and Damage stuff
     public int health = 100;
     //public GameObject deathEffect;
-    public void TakeDamage(int damage)
-    {
-        health -= damage;
-        if (health <= 0)
-        {
-            Die();
-        }
-    }
+    //public void TakeDamage(int damage)
+    //{
+      //  health -= damage;
+        //if (health <= 0)
+        //{
+         //   Die();
+        //}
+    //}
 
-    void Die()
-    {
-        //Instantiate(deathEffect, transform.position, Quaternion.identity);
-        Destroy(gameObject);
-    }
+    //void Die()
+    //{
+     //   //Instantiate(deathEffect, transform.position, Quaternion.identity);
+       // Destroy(gameObject);
+    //}
 
     //ends here
 

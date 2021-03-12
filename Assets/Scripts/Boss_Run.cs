@@ -18,6 +18,7 @@ public class Boss_Run : StateMachineBehaviour
         player = GameObject.FindGameObjectWithTag("Player").transform;
         rb = animator.GetComponent<Rigidbody2D>();
         boss = animator.GetComponent<Boss>();
+        
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
@@ -29,12 +30,15 @@ public class Boss_Run : StateMachineBehaviour
         Vector2 newPos = Vector2.MoveTowards(rb.position, target, speed * Time.fixedDeltaTime);
         rb.MovePosition(newPos);
 
-
-        if (Vector2.Distance(player.position, rb.position) <= attackRange)
+        if (Physics2D.IsTouching(boss.GetComponent<Collider2D>(), player.GetComponent<Collider2D>()))
         {
-            //attack
             animator.SetTrigger("Attack");
         }
+        //if (Vector2.Distance(player.position, rb.position) <= attackRange)
+        //{
+        //    //attack
+        //    animator.SetTrigger("Attack");
+        //}
     }
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state

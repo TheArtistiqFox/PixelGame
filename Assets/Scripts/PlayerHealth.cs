@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
+    public AudioSource deathSound;
+    public AudioClip deathClip;
+    public GameObject death_Anim;
 
     public int maxHealth = 100;
     public int currentHealth;
@@ -28,7 +31,11 @@ public class PlayerHealth : MonoBehaviour
 
         if (currentHealth <= 0)
         {
+            deathSound.PlayOneShot(deathClip);
+            GameObject death_Animation = Instantiate(death_Anim);
+            death_Animation.transform.position = transform.position;
             Destroy(gameObject);//destroy the player
+            Destroy(death_Animation, 0.4f);
         }
     }
 }

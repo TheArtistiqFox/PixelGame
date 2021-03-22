@@ -16,6 +16,10 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer _spriteRenderer;
     public Transform _firePoint;
 
+    public GameObject shootAnim;
+    public AudioSource audioSource;
+    public AudioClip jumpSound;
+
     private bool _FacingRight = true;
 
     private void Awake()
@@ -47,6 +51,10 @@ public class PlayerController : MonoBehaviour
     {
         //Debug.Log("shoot");
         Instantiate(_bulletPrefab, _firePoint.position, _firePoint.rotation);
+
+        GameObject shooting = Instantiate(shootAnim);
+        shooting.transform.position = _firePoint.transform.position;
+        Destroy(shooting, 0.4f);
     }
 
     private void Jump()
@@ -55,6 +63,7 @@ public class PlayerController : MonoBehaviour
         {
             rb.AddForce(new Vector2(0, jumpSpeed), ForceMode2D.Impulse);
             //_animator.SetTrigger("Jump");
+            audioSource.PlayOneShot(jumpSound);
         
         }
     }

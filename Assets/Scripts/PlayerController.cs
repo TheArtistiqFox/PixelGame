@@ -54,6 +54,13 @@ public class PlayerController : MonoBehaviour
 
         GameObject shooting = Instantiate(shootAnim);
         shooting.transform.position = _firePoint.transform.position;
+        //shooting.transform.rotation = transform.rotation;
+        Vector3 scale = shooting.transform.localScale;
+        if (!_FacingRight)
+        {
+            scale.y *= -1;
+            shooting.transform.localScale = scale;
+        }
         Destroy(shooting, 0.4f);
     }
 

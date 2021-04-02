@@ -1061,11 +1061,11 @@ GameObject:
   m_Component:
   - component: {fileID: 1085400739}
   - component: {fileID: 1085400738}
-  - component: {fileID: 1085400741}
   - component: {fileID: 1085400740}
   - component: {fileID: 1085400742}
   - component: {fileID: 1085400743}
   - component: {fileID: 1085400744}
+  - component: {fileID: 1085400741}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -1161,8 +1161,8 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!61 &1085400741
-BoxCollider2D:
+--- !u!70 &1085400741
+CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -1174,19 +1174,9 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.8, y: 0.8}
-    newSize: {x: 1, y: 1}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
+  m_Offset: {x: 0, y: -0.03}
   m_Size: {x: 0.22, y: 0.42}
-  m_EdgeRadius: 0
+  m_Direction: 0
 --- !u!114 &1085400742
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1199,13 +1189,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 177dc17baf65ea64f993b4b5f8ff3cf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 4
+  speed: 400
   jumpSpeed: 6
   ground:
     serializedVersion: 2
     m_Bits: 64
   _bulletPrefab: {fileID: 1521204363861640717, guid: 691824b75d2a6c3459e2aff73919a802, type: 3}
   _firePoint: {fileID: 1501476865}
+  maxVelocity: 8
   shootAnim: {fileID: 6445666186361868711, guid: 9deea548c44c9ac4e94d6932a0d85eaf, type: 3}
   audioSource: {fileID: 91582361}
   jumpSound: {fileID: 8300000, guid: c2f510425c0935842bb1a75ec2f8aaa1, type: 3}

@@ -198,7 +198,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 2.5
+  jumpSpeed: 6
   attackRange: 3
+  ground:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!114 &5456996878075449849
 MonoBehaviour:
   m_ObjectHideFlags: 1

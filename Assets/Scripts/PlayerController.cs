@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer _spriteRenderer;
     public Transform _firePoint;
 
+    public float maxVelocity = 8f;
     public GameObject shootAnim;
     public AudioSource audioSource;
     public AudioClip jumpSound;
@@ -31,6 +32,10 @@ public class PlayerController : MonoBehaviour
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
+    private void FixedUpdate()
+    {
+        rb.velocity = Vector3.ClampMagnitude(rb.velocity, maxVelocity);
+    }
     private void OnEnable()
     {
         playerActionControls.Enable();
@@ -77,15 +82,9 @@ public class PlayerController : MonoBehaviour
 
     private bool IsGrounded()
     {
-        Vector2 topLeftPoint = transform.position;
-        topLeftPoint.x -= col.bounds.extents.x;
-        topLeftPoint.y += col.bounds.extents.y;
-
-        Vector2 bottomRightPoint = transform.position;
-        bottomRightPoint.x += col.bounds.extents.x;
-        bottomRightPoint.y -= col.bounds.extents.y;
-
-        return Physics2D.OverlapArea(topLeftPoint, bottomRightPoint, ground);
+        Debug.DrawLine(col.bounds.center, col.bounds.center + (Vector3.down * col.bounds.size.y / 2f), Color.red);
+        RaycastHit2D rayCastHit2D = Physics2D.Raycast(col.bounds.center, Vector2.down, col.bounds.size.y / 2f + 0.1f, ground);
+        return rayCastHit2D.collider != null;
     }
 
     void Update()
@@ -108,9 +107,18 @@ public class PlayerController : MonoBehaviour
         // Read the movement value
         float movementInput = playerActionControls.WASD.Move.ReadValue<float>();
         // Move the player
-        Vector3 currentPosition = transform.position;
-        currentPosition.x += movementInput * speed * Time.deltaTime;
-        transform.position = currentPosition;
+        //Vector3 currentPosition = transform.position;
+        //currentPosition.x += movementInput * speed * Time.deltaTime;
+        //transform.position = currentPosition;
+        if (movementInput == 0)
+        {
+            rb.velocity = new Vector2(0f, rb.velocity.y);
+        }
+        else
+        {
+            float xForce = movementInput * speed * Time.deltaTime;
+            rb.AddForce(new Vector2(xForce, 0));
+        }
 
         //Animation
         if (movementInput != 0) _animator.SetBool("Run", true);
@@ -125,6 +133,7 @@ public class PlayerController : MonoBehaviour
 
     private void Flip()
     {
+        rb.velocity = new Vector2(0, rb.velocity.y);
         _FacingRight = !_FacingRight;
         transform.Rotate(0f, 180f, 0f);
         

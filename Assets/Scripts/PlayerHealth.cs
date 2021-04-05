@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -34,6 +35,12 @@ public class PlayerHealth : MonoBehaviour
             deathSound.PlayOneShot(deathClip);
             GameObject death_Animation = Instantiate(death_Anim);
             death_Animation.transform.position = transform.position;
+
+            if (gameObject.tag == "Player")
+            {
+                SceneManager.LoadScene("DeathScreen");
+            }
+
             Destroy(gameObject);//destroy the player
             Destroy(death_Animation, 0.4f);
         }

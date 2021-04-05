@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    //public float speed;
     [SerializeField] private float speed, jumpSpeed;
     [SerializeField] private LayerMask ground;
     [SerializeField] private GameObject _bulletPrefab;
@@ -21,10 +20,15 @@ public class PlayerController : MonoBehaviour
     public AudioSource audioSource;
     public AudioClip jumpSound;
 
-    private bool _FacingRight = true;
+    private bool _facingRight = true;
+
+    [SerializeField] private bool _isJumping = false;
+    private bool _isFalling = false;
 
     private void Awake()
     {
+        Application.targetFrameRate = 60;
+        
         playerActionControls = new PlayerActionControls();
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
@@ -32,10 +36,6 @@ public class PlayerController : MonoBehaviour
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    private void FixedUpdate()
-    {
-        rb.velocity = Vector3.ClampMagnitude(rb.velocity, maxVelocity);
-    }
     private void OnEnable()
     {
         playerActionControls.Enable();
@@ -54,14 +54,12 @@ public class PlayerController : MonoBehaviour
 
     private void Shoot()
     {
-        //Debug.Log("shoot");
         Instantiate(_bulletPrefab, _firePoint.position, _firePoint.rotation);
 
         GameObject shooting = Instantiate(shootAnim);
         shooting.transform.position = _firePoint.transform.position;
-        //shooting.transform.rotation = transform.rotation;
         Vector3 scale = shooting.transform.localScale;
-        if (!_FacingRight)
+        if (!_facingRight)
         {
             scale.y *= -1;
             shooting.transform.localScale = scale;
@@ -71,10 +69,10 @@ public class PlayerController : MonoBehaviour
 
     private void Jump()
     {
-        if (IsGrounded())
+        if (!_isJumping)
         {
+            _isJumping = true;
             rb.AddForce(new Vector2(0, jumpSpeed), ForceMode2D.Impulse);
-            //_animator.SetTrigger("Jump");
             audioSource.PlayOneShot(jumpSound);
         
         }
@@ -83,7 +81,7 @@ public class PlayerController : MonoBehaviour
     private bool IsGrounded()
     {
         Debug.DrawLine(col.bounds.center, col.bounds.center + (Vector3.down * col.bounds.size.y / 2f), Color.red);
-        RaycastHit2D rayCastHit2D = Physics2D.Raycast(col.bounds.center, Vector2.down, col.bounds.size.y / 2f + 0.1f, ground);
+        RaycastHit2D rayCastHit2D = Physics2D.Raycast(col.bounds.center, Vector2.down, col.bounds.size.y / 2f + 0.01f, ground);
         return rayCastHit2D.collider != null;
     }
 
@@ -93,48 +91,46 @@ public class PlayerController : MonoBehaviour
 
         //new sprite flipping code (flips the sprite and its children)
         float movementInput = playerActionControls.WASD.Move.ReadValue<float>();
-        if (movementInput == -1 && _FacingRight)
+        if (movementInput == -1 && _facingRight)
             Flip();
-        if (movementInput == 1 && !_FacingRight)
+        if (movementInput == 1 && !_facingRight)
             Flip();
 
-        _animator.SetBool("IsJumping", !IsGrounded());
+        _isFalling = rb.velocity.y < 0f;
+        
+        bool isGrounded = IsGrounded();
+        if (_isJumping && isGrounded && _isFalling)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, 0f);
+        }
+
+        _isJumping = !isGrounded;
+        _animator.SetBool("IsJumping", _isJumping);
         
     }
 
     private void Move()
     {
-        // Read the movement value
         float movementInput = playerActionControls.WASD.Move.ReadValue<float>();
-        // Move the player
-        //Vector3 currentPosition = transform.position;
-        //currentPosition.x += movementInput * speed * Time.deltaTime;
-        //transform.position = currentPosition;
         if (movementInput == 0)
         {
             rb.velocity = new Vector2(0f, rb.velocity.y);
         }
         else
         {
-            float xForce = movementInput * speed * Time.deltaTime;
-            rb.AddForce(new Vector2(xForce, 0));
+            float xVelocity = _isJumping ? maxVelocity *.8f : maxVelocity;
+            rb.velocity = new Vector2(movementInput * xVelocity, rb.velocity.y);
         }
 
         //Animation
         if (movementInput != 0) _animator.SetBool("Run", true);
         else _animator.SetBool("Run", false);
-
-        //sprite flip (original - only flips the sprite)
-        //if (movementInput == 1)
-        //    _spriteRenderer.flipX = true;
-        //if (movementInput == -1)
-        //    _spriteRenderer.flipX = false;
     }
 
     private void Flip()
     {
         rb.velocity = new Vector2(0, rb.velocity.y);
-        _FacingRight = !_FacingRight;
+        _facingRight = !_facingRight;
         transform.Rotate(0f, 180f, 0f);
         
     }

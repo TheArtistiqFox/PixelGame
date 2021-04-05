@@ -23,7 +23,6 @@ public class PlayerController : MonoBehaviour
     private bool _facingRight = true;
 
     [SerializeField] private bool _isJumping = false;
-    private bool _isFalling = false;
 
     private void Awake()
     {
@@ -78,13 +77,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private bool IsGrounded()
-    {
-        Debug.DrawLine(col.bounds.center, col.bounds.center + (Vector3.down * col.bounds.size.y / 2f), Color.red);
-        RaycastHit2D rayCastHit2D = Physics2D.Raycast(col.bounds.center, Vector2.down, col.bounds.size.y / 2f + 0.01f, ground);
-        return rayCastHit2D.collider != null;
-    }
-
     void Update()
     {
         Move();
@@ -96,17 +88,7 @@ public class PlayerController : MonoBehaviour
         if (movementInput == 1 && !_facingRight)
             Flip();
 
-        _isFalling = rb.velocity.y < 0f;
-        
-        bool isGrounded = IsGrounded();
-        if (_isJumping && isGrounded && _isFalling)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, 0f);
-        }
-
-        _isJumping = !isGrounded;
         _animator.SetBool("IsJumping", _isJumping);
-        
     }
 
     private void Move()
@@ -125,6 +107,22 @@ public class PlayerController : MonoBehaviour
         //Animation
         if (movementInput != 0) _animator.SetBool("Run", true);
         else _animator.SetBool("Run", false);
+    }
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.collider.tag == "Ground")
+        {
+            _isJumping = false;
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D other)
+    {
+        if (other.collider.tag == "Ground")
+        {
+            _isJumping = true;
+        }
     }
 
     private void Flip()

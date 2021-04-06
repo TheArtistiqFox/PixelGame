@@ -22,13 +22,8 @@ public class Boss_Run : StateMachineBehaviour
         rb = animator.GetComponent<Rigidbody2D>();
         boss = animator.GetComponent<Boss>();
         bossCollider = animator.GetComponent<CapsuleCollider2D>();
-        
     }
-
-    private void Jump()
-    {
-        rb.AddForce(Vector2.up * jumpSpeed, ForceMode2D.Impulse);
-    }
+    
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
@@ -44,22 +39,23 @@ public class Boss_Run : StateMachineBehaviour
         }
         else if (ground != null) 
         {
-            if(Physics2D.Raycast(bossCollider.transform.position, Vector2.right, bossCollider.size.x + 1f, ground))
+            if (Physics2D.Raycast(bossCollider.transform.position, Vector2.right, bossCollider.size.x + 1f, ground))
             {
-                Jump();
+                boss.Jump();
             }
             else if (Physics2D.Raycast(bossCollider.transform.position, Vector2.left, bossCollider.size.x + 1f, ground))
             {
-                Jump();
+                boss.Jump();
             }
         }
+        
         //if (Vector2.Distance(player.position, rb.position) <= attackRange)
         //{
         //    //attack
         //    animator.SetTrigger("Attack");
         //}
     }
-
+    
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {

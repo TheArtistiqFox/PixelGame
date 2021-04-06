@@ -1,27 +1,33 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    //public float speed;
     [SerializeField] private float speed, jumpSpeed;
-    [SerializeField] private LayerMask ground;
     [SerializeField] private GameObject _bulletPrefab;
+    [SerializeField] private float fallMultiplier = 2.5f;
+    
     private PlayerActionControls playerActionControls;
-
     private Rigidbody2D rb;
     private Collider2D col;
     private Animator _animator;
     private SpriteRenderer _spriteRenderer;
     public Transform _firePoint;
 
-    public float maxVelocity = 8f;
     public GameObject shootAnim;
     public AudioSource audioSource;
     public AudioClip jumpSound;
 
-    private bool _FacingRight = true;
+    private bool _facingRight = true;
+
+    private bool _canDoubleJump = false;
+    private bool _hasDoubleJumped = false;
+    private float _doubleJumpTimer = 0f;
+    private float _timeTilDoubleJump = .3f;
+
+    [SerializeField] private bool _isJumping = false;
 
     private void Awake()
     {
@@ -32,10 +38,6 @@ public class PlayerController : MonoBehaviour
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    private void FixedUpdate()
-    {
-        rb.velocity = Vector3.ClampMagnitude(rb.velocity, maxVelocity);
-    }
     private void OnEnable()
     {
         playerActionControls.Enable();
@@ -48,20 +50,18 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        playerActionControls.WASD.Jump.performed += _ => Jump();
         playerActionControls.WASD.Shoot.performed += _ => Shoot();
     }
 
     private void Shoot()
     {
-        //Debug.Log("shoot");
         Instantiate(_bulletPrefab, _firePoint.position, _firePoint.rotation);
 
         GameObject shooting = Instantiate(shootAnim);
-        shooting.transform.position = _firePoint.transform.position;
-        //shooting.transform.rotation = transform.rotation;
+        shooting.transform.SetParent(_firePoint.transform);
+        shooting.transform.localPosition = Vector3.zero;
         Vector3 scale = shooting.transform.localScale;
-        if (!_FacingRight)
+        if (!_facingRight)
         {
             scale.y *= -1;
             shooting.transform.localScale = scale;
@@ -71,71 +71,99 @@ public class PlayerController : MonoBehaviour
 
     private void Jump()
     {
-        if (IsGrounded())
+        if (!_isJumping || _canDoubleJump)
         {
-            rb.AddForce(new Vector2(0, jumpSpeed), ForceMode2D.Impulse);
-            //_animator.SetTrigger("Jump");
+            if (_isJumping)
+            {
+                _hasDoubleJumped = true;
+                _canDoubleJump = false;
+            }
+            _isJumping = true;
+            rb.velocity = new Vector2(rb.velocity.x, jumpSpeed);
             audioSource.PlayOneShot(jumpSound);
-        
         }
     }
 
-    private bool IsGrounded()
+    private bool _jumpPressed = false;
+    private void Update()
     {
-        Debug.DrawLine(col.bounds.center, col.bounds.center + (Vector3.down * col.bounds.size.y / 2f), Color.red);
-        RaycastHit2D rayCastHit2D = Physics2D.Raycast(col.bounds.center, Vector2.down, col.bounds.size.y / 2f + 0.1f, ground);
-        return rayCastHit2D.collider != null;
-    }
+        if (Keyboard.current.spaceKey.wasPressedThisFrame)
+        {
+            _jumpPressed = true;
+        }
 
-    void Update()
-    {
-        Move();
-
+        if (Keyboard.current.spaceKey.wasReleasedThisFrame)
+        {
+            if (_isJumping)
+            {
+                if (!_hasDoubleJumped)
+                {
+                    _canDoubleJump = true;
+                }
+            }
+        }
+        
         //new sprite flipping code (flips the sprite and its children)
         float movementInput = playerActionControls.WASD.Move.ReadValue<float>();
-        if (movementInput == -1 && _FacingRight)
+        if (movementInput == -1 && _facingRight)
             Flip();
-        if (movementInput == 1 && !_FacingRight)
+        if (movementInput == 1 && !_facingRight)
             Flip();
 
-        _animator.SetBool("IsJumping", !IsGrounded());
-        
+        _animator.SetBool("IsJumping", _isJumping);
+    }
+
+    private void FixedUpdate()
+    {
+        if (_jumpPressed)
+        {
+            _jumpPressed = false;
+            Jump();
+        }
+
+        Move();
     }
 
     private void Move()
     {
-        // Read the movement value
         float movementInput = playerActionControls.WASD.Move.ReadValue<float>();
-        // Move the player
-        //Vector3 currentPosition = transform.position;
-        //currentPosition.x += movementInput * speed * Time.deltaTime;
-        //transform.position = currentPosition;
-        if (movementInput == 0)
+        
+        float xVelocity = movementInput * speed;
+        float yVelocity = rb.velocity.y;
+        if (yVelocity < 0)
         {
-            rb.velocity = new Vector2(0f, rb.velocity.y);
+           yVelocity += Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
         }
-        else
-        {
-            float xForce = movementInput * speed * Time.deltaTime;
-            rb.AddForce(new Vector2(xForce, 0));
-        }
+
+        rb.velocity = new Vector2(xVelocity, yVelocity);
 
         //Animation
         if (movementInput != 0) _animator.SetBool("Run", true);
         else _animator.SetBool("Run", false);
+    }
 
-        //sprite flip (original - only flips the sprite)
-        //if (movementInput == 1)
-        //    _spriteRenderer.flipX = true;
-        //if (movementInput == -1)
-        //    _spriteRenderer.flipX = false;
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.collider.tag == "Ground")
+        {
+            _isJumping = false;
+            _doubleJumpTimer = 0f;
+            _hasDoubleJumped = false;
+            _canDoubleJump = false;
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D other)
+    {
+        if (other.collider.tag == "Ground")
+        {
+           // _isJumping = true;
+        }
     }
 
     private void Flip()
     {
-        rb.velocity = new Vector2(0, rb.velocity.y);
-        _FacingRight = !_FacingRight;
+        _facingRight = !_facingRight;
         transform.Rotate(0f, 180f, 0f);
-        
     }
 }

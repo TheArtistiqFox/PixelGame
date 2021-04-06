@@ -5,17 +5,17 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float speed, jumpSpeed;
-    [SerializeField] private LayerMask ground;
     [SerializeField] private GameObject _bulletPrefab;
+    [SerializeField] private float fallMultiplier = 2.5f;
+    [SerializeField] private float lowJumpMultiplier = 2f; 
+    
     private PlayerActionControls playerActionControls;
-
     private Rigidbody2D rb;
     private Collider2D col;
     private Animator _animator;
     private SpriteRenderer _spriteRenderer;
     public Transform _firePoint;
 
-    public float maxVelocity = 8f;
     public GameObject shootAnim;
     public AudioSource audioSource;
     public AudioClip jumpSound;
@@ -47,7 +47,6 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        playerActionControls.WASD.Jump.performed += _ => Jump();
         playerActionControls.WASD.Shoot.performed += _ => Shoot();
     }
 
@@ -70,14 +69,13 @@ public class PlayerController : MonoBehaviour
     {
         if (!_isJumping)
         {
-            _isJumping = true;
-            rb.AddForce(new Vector2(0, jumpSpeed), ForceMode2D.Impulse);
+            Debug.Log("JUMPING");
+            rb.velocity = new Vector2(rb.velocity.x, jumpSpeed / rb.mass);
             audioSource.PlayOneShot(jumpSound);
-        
         }
     }
-
-    void Update()
+    
+    private void FixedUpdate()
     {
         Move();
 
@@ -89,20 +87,25 @@ public class PlayerController : MonoBehaviour
             Flip();
 
         _animator.SetBool("IsJumping", _isJumping);
+        
+        if (playerActionControls.WASD.Jump.triggered)
+        {
+            Jump();
+        }
     }
 
     private void Move()
     {
         float movementInput = playerActionControls.WASD.Move.ReadValue<float>();
-        if (movementInput == 0)
+        
+        float xVelocity = movementInput * speed;
+        float yVelocity = rb.velocity.y;
+        if (yVelocity < 0)
         {
-            rb.velocity = new Vector2(0f, rb.velocity.y);
+            yVelocity += Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
         }
-        else
-        {
-            float xVelocity = _isJumping ? maxVelocity *.8f : maxVelocity;
-            rb.velocity = new Vector2(movementInput * xVelocity, rb.velocity.y);
-        }
+
+        rb.velocity = new Vector2(xVelocity, yVelocity);
 
         //Animation
         if (movementInput != 0) _animator.SetBool("Run", true);
@@ -111,6 +114,8 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D other)
     {
+        Debug.Log("COLLISION ENTER " + other.collider.tag);
+        
         if (other.collider.tag == "Ground")
         {
             _isJumping = false;
@@ -119,6 +124,8 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionExit2D(Collision2D other)
     {
+        Debug.Log("COLLISION EXIT " + other.collider.tag);
+        
         if (other.collider.tag == "Ground")
         {
             _isJumping = true;
@@ -127,9 +134,7 @@ public class PlayerController : MonoBehaviour
 
     private void Flip()
     {
-        rb.velocity = new Vector2(0, rb.velocity.y);
         _facingRight = !_facingRight;
         transform.Rotate(0f, 180f, 0f);
-        
     }
 }

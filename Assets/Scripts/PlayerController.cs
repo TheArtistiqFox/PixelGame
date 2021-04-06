@@ -1,13 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float speed, jumpSpeed;
     [SerializeField] private GameObject _bulletPrefab;
     [SerializeField] private float fallMultiplier = 2.5f;
-    [SerializeField] private float lowJumpMultiplier = 2f; 
     
     private PlayerActionControls playerActionControls;
     private Rigidbody2D rb;
@@ -79,22 +79,20 @@ public class PlayerController : MonoBehaviour
                 _canDoubleJump = false;
             }
             _isJumping = true;
-            //rb.AddForce(Vector2.up * jumpSpeed, ForceMode2D.Impulse);
             rb.velocity = new Vector2(rb.velocity.x, jumpSpeed);
             audioSource.PlayOneShot(jumpSound);
         }
     }
-    
-    private void FixedUpdate()
-    {
-        Move();
 
-        if (Input.GetKeyDown(KeyCode.Space))
+    private bool _jumpPressed = false;
+    private void Update()
+    {
+        if (Keyboard.current.spaceKey.wasPressedThisFrame)
         {
-            Jump();
+            _jumpPressed = true;
         }
 
-        if (Input.GetKeyUp(KeyCode.Space))
+        if (Keyboard.current.spaceKey.wasReleasedThisFrame)
         {
             if (_isJumping)
             {
@@ -115,6 +113,17 @@ public class PlayerController : MonoBehaviour
         _animator.SetBool("IsJumping", _isJumping);
     }
 
+    private void FixedUpdate()
+    {
+        if (_jumpPressed)
+        {
+            _jumpPressed = false;
+            Jump();
+        }
+
+        Move();
+    }
+
     private void Move()
     {
         float movementInput = playerActionControls.WASD.Move.ReadValue<float>();
@@ -123,7 +132,7 @@ public class PlayerController : MonoBehaviour
         float yVelocity = rb.velocity.y;
         if (yVelocity < 0)
         {
-            //yVelocity += Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
+           yVelocity += Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
         }
 
         rb.velocity = new Vector2(xVelocity, yVelocity);

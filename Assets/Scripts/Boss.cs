@@ -11,6 +11,16 @@ public class Boss : MonoBehaviour
 
     //Health and Damage stuff
     public int health = 100;
+
+    public float jumpForce = 10f;
+    [SerializeField] private bool _isJumping = false;
+    private Rigidbody2D _rb;
+
+    void Start()
+    {
+        _rb = GetComponent<Rigidbody2D>();
+    }
+    
     //public GameObject deathEffect;
     //public void TakeDamage(int damage)
     //{
@@ -28,6 +38,35 @@ public class Boss : MonoBehaviour
     //}
 
     //ends here
+
+    public void Jump()
+    {
+        if (!_isJumping)
+        {
+            _rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        }
+    }
+    
+    public bool IsJumping()
+    {
+        return _isJumping;
+    }
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.collider.tag == "Ground")
+        {
+            _isJumping = false;
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D other)
+    {
+        if (other.collider.tag == "Ground")
+        {
+            _isJumping = true;
+        }
+    }
 
     public void LookAtPlayer()
     {

@@ -22,12 +22,15 @@ public class PlayerController : MonoBehaviour
 
     private bool _facingRight = true;
 
+    private bool _canDoubleJump = false;
+    private bool _hasDoubleJumped = false;
+    private float _doubleJumpTimer = 0f;
+    private float _timeTilDoubleJump = .3f;
+
     [SerializeField] private bool _isJumping = false;
 
     private void Awake()
     {
-        Application.targetFrameRate = 60;
-        
         playerActionControls = new PlayerActionControls();
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
@@ -55,7 +58,8 @@ public class PlayerController : MonoBehaviour
         Instantiate(_bulletPrefab, _firePoint.position, _firePoint.rotation);
 
         GameObject shooting = Instantiate(shootAnim);
-        shooting.transform.position = _firePoint.transform.position;
+        shooting.transform.SetParent(_firePoint.transform);
+        shooting.transform.localPosition = Vector3.zero;
         Vector3 scale = shooting.transform.localScale;
         if (!_facingRight)
         {
@@ -67,10 +71,16 @@ public class PlayerController : MonoBehaviour
 
     private void Jump()
     {
-        if (!_isJumping)
+        if (!_isJumping || _canDoubleJump)
         {
-            Debug.Log("JUMPING");
-            rb.velocity = new Vector2(rb.velocity.x, jumpSpeed / rb.mass);
+            if (_isJumping)
+            {
+                _hasDoubleJumped = true;
+                _canDoubleJump = false;
+            }
+            _isJumping = true;
+            //rb.AddForce(Vector2.up * jumpSpeed, ForceMode2D.Impulse);
+            rb.velocity = new Vector2(rb.velocity.x, jumpSpeed);
             audioSource.PlayOneShot(jumpSound);
         }
     }
@@ -79,6 +89,22 @@ public class PlayerController : MonoBehaviour
     {
         Move();
 
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Jump();
+        }
+
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            if (_isJumping)
+            {
+                if (!_hasDoubleJumped)
+                {
+                    _canDoubleJump = true;
+                }
+            }
+        }
+        
         //new sprite flipping code (flips the sprite and its children)
         float movementInput = playerActionControls.WASD.Move.ReadValue<float>();
         if (movementInput == -1 && _facingRight)
@@ -87,11 +113,6 @@ public class PlayerController : MonoBehaviour
             Flip();
 
         _animator.SetBool("IsJumping", _isJumping);
-        
-        if (playerActionControls.WASD.Jump.triggered)
-        {
-            Jump();
-        }
     }
 
     private void Move()
@@ -102,7 +123,7 @@ public class PlayerController : MonoBehaviour
         float yVelocity = rb.velocity.y;
         if (yVelocity < 0)
         {
-            yVelocity += Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
+            //yVelocity += Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
         }
 
         rb.velocity = new Vector2(xVelocity, yVelocity);
@@ -114,21 +135,20 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D other)
     {
-        Debug.Log("COLLISION ENTER " + other.collider.tag);
-        
         if (other.collider.tag == "Ground")
         {
             _isJumping = false;
+            _doubleJumpTimer = 0f;
+            _hasDoubleJumped = false;
+            _canDoubleJump = false;
         }
     }
 
     private void OnCollisionExit2D(Collision2D other)
     {
-        Debug.Log("COLLISION EXIT " + other.collider.tag);
-        
         if (other.collider.tag == "Ground")
         {
-            _isJumping = true;
+           // _isJumping = true;
         }
     }
 

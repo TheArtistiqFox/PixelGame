@@ -41,6 +41,11 @@ public class PlayerHealth : MonoBehaviour
                 SceneManager.LoadScene("DeathScreen");
             }
 
+            else
+            {
+                SceneManager.LoadScene("VictoryScreen");
+            }
+
             Destroy(gameObject);//destroy the player
             Destroy(death_Animation, 0.4f);
         }

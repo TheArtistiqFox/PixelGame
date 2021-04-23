@@ -8,7 +8,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float speed, jumpSpeed;
     [SerializeField] private GameObject _bulletPrefab;
     [SerializeField] private float fallMultiplier = 2.5f;
-    
+
     private PlayerActionControls playerActionControls;
     private Rigidbody2D rb;
     private Collider2D col;
@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour
     private bool _hasDoubleJumped = false;
     private float _doubleJumpTimer = 0f;
     private float _timeTilDoubleJump = .3f;
-
+   
     [SerializeField] private bool _isJumping = false;
 
     private void Awake()
@@ -55,18 +55,21 @@ public class PlayerController : MonoBehaviour
 
     private void Shoot()
     {
-        Instantiate(_bulletPrefab, _firePoint.position, _firePoint.rotation);
-
-        GameObject shooting = Instantiate(shootAnim);
-        shooting.transform.SetParent(_firePoint.transform);
-        shooting.transform.localPosition = Vector3.zero;
-        Vector3 scale = shooting.transform.localScale;
-        if (!_facingRight)
+        if (PauseMenu.GameIsPaused == false)
         {
-            scale.y *= -1;
-            shooting.transform.localScale = scale;
+            Instantiate(_bulletPrefab, _firePoint.position, _firePoint.rotation);
+
+            GameObject shooting = Instantiate(shootAnim);
+            shooting.transform.SetParent(_firePoint.transform);
+            shooting.transform.localPosition = Vector3.zero;
+            Vector3 scale = shooting.transform.localScale;
+            if (!_facingRight)
+            {
+                scale.y *= -1;
+                shooting.transform.localScale = scale;
+            }
+            Destroy(shooting, 0.4f);
         }
-        Destroy(shooting, 0.4f);
     }
 
     private void Jump()

@@ -6,6 +6,8 @@ public class Boss : MonoBehaviour
 {
 
     public Transform player;
+    public GameObject bBullet;
+    public Transform FirePoint;
 
     public bool isFlipped = false;
 
@@ -18,26 +20,71 @@ public class Boss : MonoBehaviour
 
     void Start()
     {
+        //StartCoroutine(AttackType());
         _rb = GetComponent<Rigidbody2D>();
+        Rigidbody2D Bulletrb = bBullet.GetComponent<Rigidbody2D>();
+        //Bulletrb.velocity = transform.right
+        StartCoroutine(DestroyAfterSeconds());
     }
-    
-    //public GameObject deathEffect;
-    //public void TakeDamage(int damage)
-    //{
-      //  health -= damage;
-        //if (health <= 0)
-        //{
-         //   Die();
-        //}
-    //}
 
-    //void Die()
-    //{
-     //   //Instantiate(deathEffect, transform.position, Quaternion.identity);
-       // Destroy(gameObject);
-    //}
 
-    //ends here
+    // start new
+
+    //Health and damage stuff
+    public int damage = 40;
+    public GameObject explosion;
+
+    //rb.velocity = transform.right * 20;
+
+    /*private IEnumerator AttackType()
+    {
+        float attackNumber = Random.Range(1f, 3f);
+      
+        if (attackNumber == 1f)
+        {
+            //spread shot all directions
+            // b1 = Instantiate(bBullet, FirePoint.position, FirePoint.rotation);
+        }
+
+        else if (attackNumber == 2f)
+        {
+            // up and down shot
+        }
+
+        else if (attackNumber == 3f)
+        {
+            //diagonal shot
+        }
+    }
+    */
+
+    private IEnumerator DestroyAfterSeconds()
+    {
+        yield return new WaitForSeconds(2);
+        Destroy(gameObject);
+    }
+
+    void OnTriggerEnter2D(Collider2D hitInfo)
+    {
+        Boss boss = hitInfo.GetComponent<Boss>();
+        if (boss != null)
+        {
+            boss.GetComponent<PlayerHealth>().TakeDamage(damage);
+            Destroy(gameObject);
+            GameObject new_Explosion = Instantiate(explosion);
+            new_Explosion.transform.position = transform.position;
+            Destroy(new_Explosion, 0.4f);
+        }
+    }
+
+    // end new
+
+
+
+
+
+
+
 
     public void Jump()
     {

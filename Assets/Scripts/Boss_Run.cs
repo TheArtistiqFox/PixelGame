@@ -8,6 +8,8 @@ public class Boss_Run : StateMachineBehaviour
     public float speed = 2.5f;
     public float jumpSpeed = 6;
     public float attackRange = 3f;
+    private float spreadshotTimer = 0f;
+    public float spreadshotFrequency = 3f;
 
     Transform player;
     Rigidbody2D rb;
@@ -44,6 +46,13 @@ public class Boss_Run : StateMachineBehaviour
         }
         
         boss.LookAtPlayer();
+
+        spreadshotTimer += Time.deltaTime;
+        if (spreadshotTimer >= spreadshotFrequency)
+        {
+            boss.GetComponent<Boss_Weapon>().SpreadShot();
+            spreadshotTimer = 0f;
+        }
 
         Vector2 target = new Vector2(player.position.x, rb.position.y);
         Vector2 newPos = Vector2.MoveTowards(rb.position, target, speed * Time.fixedDeltaTime);

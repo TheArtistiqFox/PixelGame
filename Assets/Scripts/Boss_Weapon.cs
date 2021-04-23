@@ -8,6 +8,7 @@ public class Boss_Weapon : MonoBehaviour
     public Vector3 attackOffset;
     public float attackRange = 3f;
     public LayerMask attackMask;
+    public BossBullet BulletPrefab;
 
     public void Attack()
     {
@@ -21,5 +22,20 @@ public class Boss_Weapon : MonoBehaviour
             //need the player to have health to use this.
             colInfo.GetComponent<PlayerHealth>().TakeDamage(attackDamage);
         }
+    }
+
+    private void CreateBullet(Vector2 bulletDirection)
+    {
+        BossBullet bullet = Instantiate(BulletPrefab);
+        bullet.SetDirection(bulletDirection);
+    }
+
+    public void SpreadShot()
+    {
+        CreateBullet(new Vector2(1f, 0f));
+        CreateBullet(new Vector2(-1f, 0f));
+        CreateBullet(new Vector2(0f, 1f));
+        CreateBullet(new Vector2(1f, 1f));
+        CreateBullet(new Vector2(-1f, 1f));
     }
 }

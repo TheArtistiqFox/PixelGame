@@ -17,18 +17,34 @@ public class Boss_Run : StateMachineBehaviour
     CapsuleCollider2D bossCollider;
     public LayerMask ground;
 
+    private float _timeTilNextAttack = 0f;
+
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        _timeTilNextAttack = GetNextAttackTime();
+        
         player = GameObject.FindGameObjectWithTag("Player").transform;
         rb = animator.GetComponent<Rigidbody2D>();
         boss = animator.GetComponent<Boss>();
         bossCollider = animator.GetComponent<CapsuleCollider2D>();
     }
+
+    private float GetNextAttackTime()
+    {
+        return Random.Range(1f, 2.5f);
+    }
     
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        _timeTilNextAttack -= Time.deltaTime;
+        if (_timeTilNextAttack <= 0f)
+        {
+            // DO MY ATTACK
+            _timeTilNextAttack = GetNextAttackTime();
+        }
+        
         boss.LookAtPlayer();
 
         spreadshotTimer += Time.deltaTime;
@@ -57,7 +73,7 @@ public class Boss_Run : StateMachineBehaviour
                 boss.Jump();
             }
         }
-        
+
         //if (Vector2.Distance(player.position, rb.position) <= attackRange)
         //{
         //    //attack

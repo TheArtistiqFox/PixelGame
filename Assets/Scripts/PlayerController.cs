@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float speed, jumpSpeed;
     [SerializeField] private GameObject _bulletPrefab;
     [SerializeField] private float fallMultiplier = 2.5f;
+    [SerializeField] private bool isMirror = false;
 
     private PlayerActionControls playerActionControls;
     private Rigidbody2D rb;
@@ -26,7 +27,8 @@ public class PlayerController : MonoBehaviour
     private bool _hasDoubleJumped = false;
     private float _doubleJumpTimer = 0f;
     private float _timeTilDoubleJump = .3f;
-   
+    private bool _didMirrorFlip = false;
+
     [SerializeField] private bool _isJumping = false;
 
     private void Awake()
@@ -36,6 +38,11 @@ public class PlayerController : MonoBehaviour
         col = GetComponent<Collider2D>();
         _animator = GetComponent<Animator>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
+    public void SetToMirrored()
+    {
+        isMirror = true;
     }
 
     private void OnEnable()
@@ -90,6 +97,13 @@ public class PlayerController : MonoBehaviour
     private bool _jumpPressed = false;
     private void Update()
     {
+        if (isMirror && !_didMirrorFlip)
+        {
+            Flip();
+            _didMirrorFlip = true;
+        }
+        
+        
         if (Keyboard.current.spaceKey.wasPressedThisFrame)
         {
             _jumpPressed = true;
@@ -130,8 +144,14 @@ public class PlayerController : MonoBehaviour
     private void Move()
     {
         float movementInput = playerActionControls.WASD.Move.ReadValue<float>();
-        
+
         float xVelocity = movementInput * speed;
+
+        if (isMirror)
+        {
+            xVelocity *= -1f;
+        }
+        
         float yVelocity = rb.velocity.y;
         if (yVelocity < 0)
         {
@@ -167,6 +187,11 @@ public class PlayerController : MonoBehaviour
     private void Flip()
     {
         _facingRight = !_facingRight;
-        transform.Rotate(0f, 180f, 0f);
+        float updatedRotation = _facingRight ? 0 : -180f;
+        if (isMirror)
+        {
+            updatedRotation = _facingRight ? -180 : 0;
+        }
+        transform.localRotation = Quaternion.Euler(0f, updatedRotation, 0f);
     }
 }

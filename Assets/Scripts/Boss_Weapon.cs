@@ -27,6 +27,7 @@ public class Boss_Weapon : MonoBehaviour
     private void CreateBullet(Vector2 bulletDirection)
     {
         BossBullet bullet = Instantiate(BulletPrefab);
+        bullet.transform.position = transform.position;
         bullet.SetDirection(bulletDirection);
     }
 

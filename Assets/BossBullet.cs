@@ -6,6 +6,7 @@ public class BossBullet : MonoBehaviour
 {
     //Health and damage stuff
     public int damage = 10;
+    public float bulletSpeed = 10f;
     public GameObject explosion;
 
     // Start is called before the first frame update
@@ -53,19 +54,19 @@ public class BossBullet : MonoBehaviour
     public void SetDirection(Vector2 direction)
     {
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
-        rb.velocity = direction * 20;
+        rb.velocity = direction * bulletSpeed;
     }
 
     void OnTriggerEnter2D(Collider2D hitInfo)
     {
         PlayerHealth player = hitInfo.GetComponent<PlayerHealth>();
-        if (player != null)
+        if (hitInfo.gameObject.tag == "Player")
         {
             player.GetComponent<PlayerHealth>().TakeDamage(damage);
             Destroy(gameObject);
-            GameObject new_Explosion = Instantiate(explosion);
-            new_Explosion.transform.position = transform.position;
-            Destroy(new_Explosion, 0.4f);
+//            GameObject new_Explosion = Instantiate(explosion);
+//            new_Explosion.transform.position = transform.position;
+//            Destroy(new_Explosion, 0.4f);
         }
     }
 }

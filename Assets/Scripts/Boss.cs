@@ -21,10 +21,10 @@ public class Boss : MonoBehaviour
     void Start()
     {
         //StartCoroutine(AttackType());
-        _rb = GetComponent<Rigidbody2D>();
-        Rigidbody2D Bulletrb = bBullet.GetComponent<Rigidbody2D>();
-        //Bulletrb.velocity = transform.right
-        StartCoroutine(DestroyAfterSeconds());
+//        _rb = GetComponent<Rigidbody2D>();
+//        Rigidbody2D Bulletrb = bBullet.GetComponent<Rigidbody2D>();
+//        //Bulletrb.velocity = transform.right
+//        StartCoroutine(DestroyAfterSeconds());
     }
 
 

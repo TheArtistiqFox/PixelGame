@@ -2197,6 +2197,7 @@ MonoBehaviour:
   _bulletPrefab: {fileID: 1521204363861640717, guid: 691824b75d2a6c3459e2aff73919a802, type: 3}
   fallMultiplier: 2.5
   isMirror: 0
+  mirrorMode: 0
   _firePoint: {fileID: 1501476865}
   shootAnim: {fileID: 6445666186361868711, guid: 9deea548c44c9ac4e94d6932a0d85eaf, type: 3}
   audioSource: {fileID: 91582361}
@@ -5503,6 +5504,34 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1405774999694973861, guid: 91f545670d5e547df9fae8d7a3ee036e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1405774999694973881, guid: 91f545670d5e547df9fae8d7a3ee036e, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1405774999694973881, guid: 91f545670d5e547df9fae8d7a3ee036e, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1405774999694973881, guid: 91f545670d5e547df9fae8d7a3ee036e, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1405774999694973881, guid: 91f545670d5e547df9fae8d7a3ee036e, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1405774999694973881, guid: 91f545670d5e547df9fae8d7a3ee036e, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1405774999694973881, guid: 91f545670d5e547df9fae8d7a3ee036e, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1405775000487469630, guid: 91f545670d5e547df9fae8d7a3ee036e, type: 3}
       propertyPath: player
       value: 

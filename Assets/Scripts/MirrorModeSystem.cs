@@ -11,7 +11,7 @@ public class MirrorModeSystem : MonoBehaviour
     public Color mirroredPlayerColor = Color.white;
     public Canvas mirrorModeCanvas;
     
-    private PlayerController _mirroredPlayer;
+    public PlayerController _mirroredPlayer;
     
     public void ActivateMirrorMode()
     {
@@ -24,6 +24,7 @@ public class MirrorModeSystem : MonoBehaviour
         _mirroredPlayer = Instantiate(player.gameObject).GetComponent<PlayerController>();
         _mirroredPlayer.SetToMirrored();
         _mirroredPlayer.GetComponent<SpriteRenderer>().color = mirroredPlayerColor;
+
 
         _mirroredPlayer.transform.position = mirroredPlayerSpawnPoint.position;
 

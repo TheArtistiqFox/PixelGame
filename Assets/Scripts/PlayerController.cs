@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float fallMultiplier = 2.5f;
     [SerializeField] private bool isMirror = false;
 
+    public bool mirrorMode = false;
+
     private PlayerActionControls playerActionControls;
     private Rigidbody2D rb;
     private Collider2D col;
@@ -43,6 +45,7 @@ public class PlayerController : MonoBehaviour
     public void SetToMirrored()
     {
         isMirror = true;
+        mirrorMode = true; //a public reference for other scripts
     }
 
     private void OnEnable()
@@ -73,9 +76,15 @@ public class PlayerController : MonoBehaviour
             if (!_facingRight)
             {
                 scale.y *= -1;
-                shooting.transform.localScale = scale;
+                //shooting.transform.localScale = scale;
             }
+            if (isMirror)
+            {
+                scale.y *= -1;
+            }
+            shooting.transform.localScale = scale;
             Destroy(shooting, 0.4f);
+            
         }
     }
 

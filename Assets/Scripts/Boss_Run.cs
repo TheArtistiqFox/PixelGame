@@ -10,8 +10,11 @@ public class Boss_Run : StateMachineBehaviour
     public float attackRange = 3f;
     private float spreadshotTimer = 0f;
     public float spreadshotFrequency = 3f;
+   
 
-    Transform player;
+    public MirrorModeSystem mmSystem;
+
+
     Rigidbody2D rb;
     Boss boss;
     CapsuleCollider2D bossCollider;
@@ -24,7 +27,8 @@ public class Boss_Run : StateMachineBehaviour
     {
         _timeTilNextAttack = GetNextAttackTime();
         
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+
+        mmSystem = GameObject.FindObjectOfType<MirrorModeSystem>();
         rb = animator.GetComponent<Rigidbody2D>();
         boss = animator.GetComponent<Boss>();
         bossCollider = animator.GetComponent<CapsuleCollider2D>();
@@ -45,7 +49,6 @@ public class Boss_Run : StateMachineBehaviour
             _timeTilNextAttack = GetNextAttackTime();
         }
         
-        boss.LookAtPlayer();
 
         spreadshotTimer += Time.deltaTime;
         if (spreadshotTimer >= spreadshotFrequency)
@@ -54,11 +57,60 @@ public class Boss_Run : StateMachineBehaviour
             spreadshotTimer = 0f;
         }
 
-        Vector2 target = new Vector2(player.position.x, rb.position.y);
+        /*Vector2 target = new Vector2(player.position.x, rb.position.y);
         Vector2 newPos = Vector2.MoveTowards(rb.position, target, speed * Time.fixedDeltaTime);
-        rb.MovePosition(newPos);
+        rb.MovePosition(newPos);*/
 
-        if (Physics2D.IsTouching(boss.GetComponent<Collider2D>(), player.GetComponent<Collider2D>()))
+
+
+        if (mmSystem._mirroredPlayer != null)
+        {
+            //check player and clone position, if statment for closest with moveposition(newpos)
+            /*Vector2 target = new Vector2(player.position.x, rb.position.y);
+            Vector2 newPos = Vector2.MoveTowards(rb.position, target, speed * Time.fixedDeltaTime);*/
+
+            /*Vector2 cloneTarget = new Vector2(mmSystem._mirroredPlayer.gameObject.GetComponent<PlayerController>().transform.position.x, rb.position.x);
+            Vector2 clonenewPos = Vector2.MoveTowards(rb.position, cloneTarget, speed * Time.fixedDeltaTime);*/
+
+            float targetDistance = Vector3.Distance(mmSystem.player.transform.position, rb.position);
+            float cloneDistance = Vector3.Distance(mmSystem._mirroredPlayer.gameObject.GetComponent<PlayerController>().transform.position, rb.position);
+
+            if (cloneDistance < targetDistance)
+            {
+                Vector2 cloneTarget = new Vector2(mmSystem._mirroredPlayer.gameObject.GetComponent<PlayerController>().transform.position.x, rb.position.x);
+                Vector2 clonenewPos = Vector2.MoveTowards(rb.position, cloneTarget, speed * Time.fixedDeltaTime);
+                rb.MovePosition(clonenewPos);
+                boss.LookAtPlayer(mmSystem._mirroredPlayer.transform);
+            }
+
+            else if (cloneDistance > targetDistance)
+            {
+                Vector2 target = new Vector2(mmSystem.player.transform.position.x, rb.position.y);
+                Vector2 newPos = Vector2.MoveTowards(rb.position, target, speed * Time.fixedDeltaTime);
+                rb.MovePosition(newPos);
+                boss.LookAtPlayer(mmSystem.player.transform);
+            }
+
+            else if (cloneDistance == targetDistance)
+            {
+                Vector2 target = new Vector2(mmSystem.player.transform.position.x, rb.position.y);
+                Vector2 newPos = Vector2.MoveTowards(rb.position, target, speed * Time.fixedDeltaTime);
+                rb.MovePosition(newPos);
+                boss.LookAtPlayer(mmSystem.player.transform);
+            }
+        
+        }
+        else
+        {
+            Vector2 target = new Vector2(mmSystem.player.transform.position.x, rb.position.y);
+            Vector2 newPos = Vector2.MoveTowards(rb.position, target, speed * Time.fixedDeltaTime);
+            rb.MovePosition(newPos);
+            boss.LookAtPlayer(mmSystem.player.transform);
+        }
+
+
+
+        if (Physics2D.IsTouching(boss.GetComponent<Collider2D>(), mmSystem.player.GetComponent<Collider2D>()))
         {
             animator.SetTrigger("Attack");
         }
